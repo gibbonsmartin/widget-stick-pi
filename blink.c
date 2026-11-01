@@ -15,6 +15,7 @@
 #define PIN_BLUE  22
 #define PIN_SW    23
 
+extern int server_main(void);
 // Global request reference for the timer signal handler
 struct gpiod_line_request *rgb_req = NULL;
 int current_color_state = 0;
@@ -123,7 +124,7 @@ int main(void)
     timer_t timerid;
     struct sigaction sa;
 
-    sa.sa_flags = SA_SIGINFO;
+    sa.sa_flags = SA_SIGINFO | SA_RESTART | SA_NOCLDSTOP;
     sa.sa_sigaction = timer_handler;
     sigemptyset(&sa.sa_mask);
     if (sigaction(SIGRTMIN, &sa, NULL) == -1) {
@@ -163,6 +164,7 @@ int main(void)
             }
         }
         usleep(100000); // 100ms
+        server_main();
     }
 
 cleanup:
